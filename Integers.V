@@ -200,6 +200,16 @@ Lemma subPPn_O : forall n : nat, sub_PPn n O = P n.
     reflexivity.
   Defined.
 
+Lemma subPPn_n : forall n : nat, sub_PPn n n = P O.
+  induction n.
+    simpl.
+    rewrite pz_equals_nz.
+    reflexivity.
+
+    simpl.
+    assumption.
+  Defined.
+
 Fixpoint sub_PNn (n1 n2 : nat) :=
   match n1 with
   | O => P n2
@@ -288,6 +298,15 @@ Lemma subNNn_O : forall n : nat, sub_NNn n O = N n.
     reflexivity.
   Defined.
 
+Lemma subNNn_n : forall n : nat, sub_NNn n n = P O.
+  induction n.
+    reflexivity.
+
+    simpl.
+    rewrite IHn.
+    reflexivity.
+  Defined.
+
 Fixpoint subi (i1 i2 : int) :=
   match i1, i2 with
   | P n1, P n2 => sub_PPn n1 n2
@@ -342,4 +361,53 @@ Theorem addi_i_O : forall i : int, addi i (P O) = i.
     rewrite subNNn_O.
     reflexivity.
   Defined.
+
+Theorem addi_i_negi : forall i : int, addi i (neg i) = P O.
+  induction i.
+    simpl.
+    induction n.
+      reflexivity.
+      
+      rewrite subPPn_n.
+      reflexivity.
+
+    simpl.
+    rewrite subNNn_n.
+    reflexivity.
+  Defined.
+
+Theorem subi_i_i : forall i : int, subi i i = P O.
+  induction i.
+    simpl.
+    rewrite subPPn_n.
+    reflexivity.
+
+    simpl.
+    rewrite subNNn_n.
+    reflexivity.
+  Defined.
+
+Theorem subi_O_i : forall i : int, subi (P O) i = neg i.
+  induction i.
+    induction n.
+      simpl.
+      rewrite pz_equals_nz.
+      reflexivity.
+
+      reflexivity.
+
+    induction n.
+      reflexivity.
+
+      reflexivity.
+  Defined.
+
+Theorem subi_i_O : forall i : int, subi i (P O) = i.
+  induction i.
+    induction n.
+      simpl.
+      rewrite pz_equals_nz.
+      reflexivity.
+
+      
 
