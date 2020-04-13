@@ -409,5 +409,14 @@ Theorem subi_i_O : forall i : int, subi i (P O) = i.
       rewrite pz_equals_nz.
       reflexivity.
 
-      
+      reflexivity.
+    induction n.
+      rewrite <- pz_equals_nz.
+      rewrite subi_i_i.
+      reflexivity.
 
+      simpl.
+      rewrite ns_eq_dec_N.
+      rewrite subNPn_O.
+      reflexivity.
+  Defined.
