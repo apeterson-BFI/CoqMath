@@ -225,6 +225,16 @@ Lemma subPP_inci : forall n m : nat, inci (sub_PPn n m) = sub_PPn (S n) m.
     reflexivity.
   Defined.
 
+Lemma subPP_deci : forall n m : nat, deci (sub_PPn n m) = sub_PPn n (S m).
+  induction n; destruct m; try reflexivity.
+  rewrite subPP_Sn_Sm.
+  rewrite? subPPn_O.
+  reflexivity.
+  rewrite? subPP_Sn_Sm.
+  rewrite IHn.
+  reflexivity.
+  Defined.
+
 Fixpoint sub_PNn (n1 n2 : nat) :=
   match n1 with
   | O => P n2
@@ -532,4 +542,118 @@ Lemma addi_i_incij : forall i j : int, addi i (inci j) = inci (addi i j).
   rewrite addi_Nn_inciNm; reflexivity.
   Defined.
 
-Lemma addi_comm : forall i j : int, addi i j = addi j i.
+Lemma addi_Pn_Pm_comm : forall n m : nat, addi (P n) (P m) = addi (P m) (P n).
+  intros.
+  simpl.
+  rewrite? subPN_eq_Padd.
+  rewrite addn_comm.
+  reflexivity.
+  Defined.
+
+Lemma subPPnm_eq_subNNmn : forall n m : nat, sub_PPn n m = sub_NNn m n.
+  induction n; destruct m; try reflexivity.
+  simpl; rewrite pz_equals_nz; reflexivity.
+  simpl.
+  rewrite IHn.
+  reflexivity.
+  Defined.
+
+Lemma addi_Pn_Nm_comm : forall n m : nat, addi (P n) (N m) = addi (N m) (P n).
+  intros.
+  simpl.
+  induction n; destruct m; try reflexivity.
+  simpl; rewrite pz_equals_nz; reflexivity.
+  simpl.
+  rewrite subPPnm_eq_subNNmn.
+  reflexivity.
+  Defined.
+
+Lemma addi_Nn_Pm_comm : forall n m : nat, addi (N n) (P m) = addi (P m) (N n).
+  intros.
+  simpl.
+  rewrite subPPnm_eq_subNNmn.
+  reflexivity.
+  Defined.
+
+Lemma addi_Nn_Nm_comm : forall n m : nat, addi (N n) (N m) = addi (N m) (N n).
+  intros.
+  simpl.
+  rewrite? subNP_eq_Nadd.
+  rewrite addn_comm.
+  reflexivity.
+  Defined.
+
+Theorem addi_comm : forall i1 i2 : int, addi i1 i2 = addi i2 i1.
+  destruct i1; destruct i2.
+  rewrite addi_Pn_Pm_comm; reflexivity.
+  rewrite addi_Pn_Nm_comm; reflexivity.
+  rewrite addi_Nn_Pm_comm; reflexivity.
+  rewrite addi_Nn_Nm_comm; reflexivity.
+  Defined.
+
+Lemma addi_Pn_deciPm : forall n m : nat, addi (P n) (deci (P m)) = deci (addi (P n) (P m)).
+  induction n; destruct m; try reflexivity.
+  simpl.
+  rewrite subPPn_O.
+  rewrite subPNn_O.
+  rewrite deci_inci_eq_i.
+  reflexivity.
+  simpl.
+  rewrite? subPN_eq_Padd.
+  rewrite <- addn_Scomm.
+  simpl.
+  reflexivity.
+  Defined.
+
+Lemma addi_Pn_deciNm : forall n m : nat, addi (P n) (deci (N m)) = deci (addi (P n) (N m)).
+  induction n; destruct m; try reflexivity.
+  simpl.
+  rewrite subPPn_O.
+  reflexivity.
+  simpl.
+  rewrite subPP_deci.
+  reflexivity.
+  Defined.
+
+Lemma addi_Nn_deciPm : forall n m : nat, addi (N n) (deci (P m)) = deci (addi (N n) (P m)).
+  induction n; destruct m; try reflexivity.
+  simpl.
+  rewrite subNPn_Sm.
+  rewrite subNPn_O.
+  reflexivity.
+  rewrite? ns_eq_dec_N.
+  rewrite? ps_eq_inc_P.
+  rewrite addi_i_incij.
+  rewrite? deci_inci_eq_i.
+  reflexivity.
+  Defined.
+  
+Lemma addi_Nn_deciNm : forall n m : nat, addi (N n) (deci (N m)) = deci (addi (N n) (N m)).
+  induction n; destruct m; try reflexivity.
+  simpl.
+  rewrite subNPn_Sm.
+  reflexivity.
+  rewrite? ns_eq_dec_N.
+  simpl.
+  rewrite subNPn_Sm.
+  reflexivity.
+  Defined.
+
+Lemma addi_i_decij : forall i j : int, addi i (deci j) = deci (addi i j).
+  destruct i as [p1 | n1]; destruct j as [p2 | n2].
+  rewrite addi_Pn_deciPm; reflexivity.
+  rewrite addi_Pn_deciNm; reflexivity.
+  rewrite addi_Nn_deciPm; reflexivity.
+  rewrite addi_Nn_deciNm; reflexivity.
+  Defined.
+
+Lemma addi_inci_j : forall i j : int, addi (inci i) j.
+
+Lemma addi_assoc_PPP : forall n1 n2 n3 : nat, addi (addi (P n1) (P n2)) (P n3) = addi (P n1) (addi (P n2) (P n3)).
+  induction n1 as [|n1']; destruct n2 as [|n2']; destruct n3 as [|n3']; try (rewrite? addi_O_i; rewrite? addi_i_O; reflexivity).
+  rewrite? ps_eq_inc_P.
+  rewrite? addi_i_incij.
+  
+
+Theorem addi_assoc : forall i1 i2 i3 : int, addi (addi i1 i2) i3 = addi i1 (addi i2 i3).
+  destruct i1 as [p1 | n1]; destruct i2 as [p2 | n2]; destruct i3 as [p3 | n3].
