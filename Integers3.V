@@ -966,92 +966,74 @@ Lemma absi_neg : forall (i : int), absi (neg i) = absi i.
   reflexivity.
   Defined.
 
-(* naturals, subtraction, mod & integer division & euclid *)
-(* divmod, div and modulo, subn from Coq init.nat *)
+(* Integer sign function *)
 
-Fixpoint subn n m :=
-  match n, m with
-  | S k, S l => subn k l
-  | _, _ => n
+Fixpoint sgni (i : int) :=
+  match i with
+  | P O => P O
+  | N O => P O
+  | P n => P (S O)
+  | N n => N (S O)
   end.
 
-Fixpoint divmod x y q u :=
-  match x with
-    | O => (q,u)
-    | S x' => match u with
-                | O => divmod x' y (S q) y
-                | S u' => divmod x' y q u'
-              end
-  end.
-
-Definition div x y :=
-  match y with
-    | O => y
-    | S y' => fst (divmod x y' O y')
-  end.
-
-Definition modulo x y :=
-  match y with
-    | O => y
-    | S y' => subn y' (snd (divmod x y' O y'))
-  end.
-
-Lemma divmod_O_y_q_u : forall (y q u : nat), divmod O y q u = (q, u).
+Lemma sgni_PSn : forall (n : nat), sgni (P (S n)) = P (S O).
   reflexivity.
   Defined.
 
-Lemma divmod_Sx_y_q_O : forall (x y q : nat), divmod (S x) y q O = divmod x y (S q) y.
+Lemma sgni_NSn : forall (n : nat), sgni (N (S n)) = N (S O).
   reflexivity.
   Defined.
 
-Lemma divmod_Sx_y_q_Su : forall (x y q u : nat), divmod (S x) y q (S u) = divmod x y q u.
+Lemma sgni_PO : sgni (P O) = P O.
   reflexivity.
   Defined.
 
-Lemma divmod_fst_qadd : forall (x y q u : nat), fst (divmod x y q u) = addn (fst (divmod x y O u)) q.
-  induction x.
-  (* x = O *)
-    rewrite ?divmod_O_y_q_u.
-    unfold fst; rewrite ?addn_O_m; try reflexivity.
-  (* x = S x' *)
-    destruct u.
-      (* u = O *)
-        rewrite ?divmod_Sx_y_q_O.
-        rewrite (IHx y (S q) y).
-        rewrite (IHx y (S O) y).
-        rewrite addn_assoc.
-        rewrite addn_Sn_m; rewrite addn_O_m.
-        reflexivity.
-      (* u = S u' *)
-        rewrite ?divmod_Sx_y_q_Su.
-        rewrite (IHx y q u).
-        reflexivity.
+Lemma sgni_NO : sgni (N O) = N O.
+  rewrite <- pz_equals_nz.
+  reflexivity.
   Defined.
 
-Lemma divmod_snd_qign : forall (x y q u : nat), snd (divmod x y q u) = snd (divmod x y O u).
-  induction x.
-  (* x = 0 *)
-    intros y q u. rewrite ?divmod_O_y_q_u. reflexivity.
-  (* x = S x' *)
-    destruct u.
-    (* u = O *)
-        rewrite ?divmod_Sx_y_q_O.
-        rewrite (IHx y (S q) y).
-        rewrite (IHx y (S O) y).
-        reflexivity.
-    (* u = S u' *)
-        rewrite ?divmod_Sx_y_q_Su.
-        rewrite (IHx y q u).
-        reflexivity.
+Theorem sgni_muli : forall (i j : int), sgni (muli i j) = muli (sgni i) (sgni j).
+  destruct i as [n|n]; destruct j as [m|m];
+  induction n; destruct m;
+  rewrite ?sgni_PSn; rewrite ?sgni_NSn; rewrite ?sgni_PO; rewrite ?sgni_NO;
+  rewrite <- ?pz_equals_nz; rewrite ?muli_PO_j; rewrite ?muli_i_PO;
+  try reflexivity.
   Defined.
 
-Lemma divmod_x_O_q_O : forall (x q : nat), divmod x O q O = (addn x q, O).
-  induction x; intros q.
-  rewrite divmod_O_y_q_u. rewrite addn_O_m. reflexivity.
-  rewrite divmod_Sx_y_q_O. rewrite addn_Sn_m. rewrite <- addn_n_Sm. rewrite IHx. reflexivity.
+Theorem sgni_sgni : forall (i : int), sgni (sgni i) = sgni i.
+  destruct i as [n|n]; induction n.
+  rewrite ?sgni_PO. reflexivity.
+  rewrite ?sgni_PSn. reflexivity.
+  rewrite ?sgni_NO. reflexivity.
+  rewrite ?sgni_NSn. reflexivity.
   Defined.
 
+Lemma sgni_neg : forall (i : int), sgni (neg i) = neg (sgni i).
+  destruct i as [n|n];
+  rewrite ?neg_Nn; rewrite ?neg_Pn;
+  induction n; rewrite ?sgni_PO; rewrite ?sgni_NO; 
+  rewrite ?sgni_PSn; rewrite ?sgni_NSn;
+  rewrite ?neg_Nn; rewrite ?neg_Pn;
+  reflexivity.
+  Defined.
 
+Lemma muli_absi_sgni : forall (i : int), muli (absi i) (sgni i) = i.
+  destruct i as [n|n]; rewrite ?absi_P; rewrite ?absi_N;
+  destruct n; rewrite ?muli_i_PO; rewrite ?sgni_PSn; rewrite ?sgni_NSn;
+  rewrite <- ?pz_equals_nz; try reflexivity;
+  rewrite ?muli_PP; rewrite ?muli_PN;
+  rewrite muln_n_SO; reflexivity.
+  Defined.
 
+(* natural power *)
 
+Fixpoint pow  (n m : nat) := 
+  match m with
+  | O => S O
+  | S m' => muln (pow n m') n
+  end.
+
+Theorem muln_pow : forall (n m o : nat), muln (pow n m) (pow n o) = pow n (addn m o).  
+  induction o.
 
