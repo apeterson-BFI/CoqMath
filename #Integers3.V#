@@ -44,7 +44,7 @@ Theorem addn_comm : forall (n m : nat), addn n m = addn m n.
   Defined.
 
 Theorem addn_assoc : forall (n m o : nat), addn (addn n m) o = addn n (addn m o).
-  induction n; destruct m; destruct o; 
+  induction n; destruct m; destruct o. 
   try reflexivity;
   try (rewrite ?addn_n_O; rewrite ?addn_O_n; reflexivity).
   rewrite ?addn_Sn_m. rewrite ?addn_n_Sm. rewrite addn_Sn_m.
